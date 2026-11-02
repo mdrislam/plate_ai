@@ -1,6 +1,6 @@
 name: plate_ai
 description: "On-phone Bangladeshi number plate detector and reader. Android; no server needed."
-version: 0.0.4
+version: 0.0.5
 repository: https://github.com/mdrislam/plate_ai
 
 environment:

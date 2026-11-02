@@ -29,6 +29,11 @@ class _HomePageState extends State<HomePage> {
     if (plate != null) setState(() => _found.insert(0, plate));
   }
 
+  Future<void> _scanAll() async {
+    final plates = await PlateScanner.scanAll(context, language: _language);
+    setState(() => _found.insertAll(0, plates));
+  }
+
   @override
   Widget build(BuildContext context) => Scaffold(
         appBar: AppBar(title: const Text('Plate AI'), actions: [
@@ -54,10 +59,20 @@ class _HomePageState extends State<HomePage> {
                   title: Text(_found[i].text(_language)),
                 ),
               ),
-        floatingActionButton: FloatingActionButton.extended(
-          onPressed: _scan,
-          icon: const Icon(Icons.qr_code_scanner),
-          label: const Text('Scan'),
-        ),
+        floatingActionButton: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.end, children: [
+          FloatingActionButton.extended(
+            heroTag: 'all',
+            onPressed: _scanAll,
+            icon: const Icon(Icons.playlist_add),
+            label: const Text('Live list'),
+          ),
+          const SizedBox(height: 12),
+          FloatingActionButton.extended(
+            heroTag: 'one',
+            onPressed: _scan,
+            icon: const Icon(Icons.qr_code_scanner),
+            label: const Text('Scan'),
+          ),
+        ]),
       );
 }

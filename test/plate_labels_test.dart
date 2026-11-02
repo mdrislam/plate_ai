@@ -94,6 +94,26 @@ void main() {
     expect(result, isNull);
   });
 
+  testWidgets('scanAll returns an empty list when nothing was found', (tester) async {
+    answer((c) => throw PlatformException(code: 'LOAD', message: 'broken'));
+    List<PlateRead>? result;
+    await tester.pumpWidget(MaterialApp(
+      home: Builder(
+        builder: (context) => TextButton(
+          onPressed: () async => result = await PlateScanner.scanAll(context),
+          child: const Text('go'),
+        ),
+      ),
+    ));
+    await tester.tap(find.text('go'));
+    await tester.pump();
+    await tester.pump(const Duration(seconds: 1));
+    await tester.tap(find.text('Done'));
+    await tester.pump();
+    await tester.pump(const Duration(seconds: 1));
+    expect(result, isEmpty);
+  });
+
   testWidgets('the scanner offers a retry when it cannot start', (tester) async {
     answer((c) => throw PlatformException(code: 'LOAD', message: 'broken'));
     await tester.pumpWidget(const MaterialApp(home: PlateScanner()));

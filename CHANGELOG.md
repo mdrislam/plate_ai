@@ -1,3 +1,8 @@
+## 0.0.5
+
+* Added `PlateScanner.scanAll`: a live scanner that lists each new plate and skips duplicates.
+* Added `onlyNew` to `PlateScanner`.
+
 ## 0.0.4
 
 * Added `PlateScanner.scan`: opens a scanner and returns the plate, like a QR scanner.

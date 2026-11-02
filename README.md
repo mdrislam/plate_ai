@@ -30,6 +30,22 @@ if (plate != null) {
 
 It returns null if the user closes the scanner. `scan` takes the same options as `PlateScanner`.
 
+## Live list, no duplicates
+
+The camera stays open, each new plate joins a list, and a plate already listed is skipped, even if
+it comes back later. Plates count as the same when their `number` matches.
+
+```dart
+final plates = await PlateScanner.scanAll(context);
+
+for (final plate in plates) {
+  print(plate.en);
+}
+```
+
+It returns the plates when the user taps Done or goes back. To build your own screen, use
+`PlateScanner(onlyNew: true, onPlate: ...)`.
+
 ## Scanner inside your own screen
 
 `PlateScanner` handles the models, the camera, and pausing with the app:
@@ -54,6 +70,7 @@ button. [example/lib/main.dart](example/lib/main.dart) is a full app with a lang
 | `minConfidence` | `0.75` | Reads below this are ignored. |
 | `resolution` | `high` | Lower saves battery, but the plate must be closer. |
 | `hint` | | Text shown until a plate is found. |
+| `onlyNew` | `false` | Call `onPlate` once per plate number. |
 
 ## Reading frames yourself
 
@@ -81,6 +98,7 @@ can be misread, so accept a plate only when two reads have the same `number`.
 | | |
 |---|---|
 | `PlateScanner.scan(context)` | Opens a scanner and returns the plate, or null. |
+| `PlateScanner.scanAll(context)` | Opens a live list and returns the plates, without duplicates. |
 | `PlateScanner(...)` | The live scanner widget. |
 | `PlateLanguage` | `english` or `bangla`. |
 | `PlateAI.load()` | Loads the models. Call once, before reading. |

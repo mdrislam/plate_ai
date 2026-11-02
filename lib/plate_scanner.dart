@@ -22,7 +22,36 @@ class PlateScanner extends StatefulWidget {
     this.minConfidence = 0.75,
     this.resolution = ResolutionPreset.high,
     this.hint = 'Keep the plate inside the box',
+    this.onlyNew = false,
   }) : assert(confirmReads >= 1);
+
+  /// Opens a live scanner that stays open and lists each new plate, skipping duplicates.
+  ///
+  /// Returns the plates found when the user taps Done or goes back.
+  ///
+  /// ```dart
+  /// final plates = await PlateScanner.scanAll(context);
+  /// ```
+  static Future<List<PlateRead>> scanAll(
+    BuildContext context, {
+    PlateLanguage language = PlateLanguage.english,
+    int confirmReads = 2,
+    double minConfidence = 0.75,
+    ResolutionPreset resolution = ResolutionPreset.high,
+  }) async {
+    final plates = <PlateRead>[];
+    await Navigator.of(context).push<void>(MaterialPageRoute(
+      fullscreenDialog: true,
+      builder: (_) => _ScanAllPage(
+        plates: plates,
+        language: language,
+        confirmReads: confirmReads,
+        minConfidence: minConfidence,
+        resolution: resolution,
+      ),
+    ));
+    return plates;
+  }
 
   /// Opens a full-screen scanner, like a QR scanner, and returns the first plate it finds.
   ///
@@ -97,6 +126,9 @@ class PlateScanner extends StatefulWidget {
   /// Shown until a plate is found.
   final String hint;
 
+  /// Calls [onPlate] only once per plate number, even if a plate comes back later.
+  final bool onlyNew;
+
   @override
   State<PlateScanner> createState() => _PlateScannerState();
 }
@@ -107,6 +139,7 @@ class _PlateScannerState extends State<PlateScanner> with WidgetsBindingObserver
   final _ai = PlateAI();
   final _plate = ValueNotifier<PlateRead?>(null); // so a new plate rebuilds only its label
   final _watch = Stopwatch()..start();
+  final _seen = <String>{};
   CameraController? _camera;
   Duration _last = -_minGap;
   String? _lastNumber, _error;
@@ -192,6 +225,7 @@ class _PlateScannerState extends State<PlateScanner> with WidgetsBindingObserver
     _agreeing = read.number == _lastNumber ? _agreeing + 1 : 1;
     _lastNumber = read.number;
     if (_agreeing < widget.confirmReads || read.number == _plate.value?.number) return;
+    if (widget.onlyNew && !_seen.add(read.number)) return;
     _plate.value = read;
     HapticFeedback.lightImpact();
     widget.onPlate?.call(read);
@@ -279,6 +313,57 @@ class _PlateScannerState extends State<PlateScanner> with WidgetsBindingObserver
       ),
     );
   }
+}
+
+class _ScanAllPage extends StatefulWidget {
+  const _ScanAllPage({
+    required this.plates,
+    required this.language,
+    required this.confirmReads,
+    required this.minConfidence,
+    required this.resolution,
+  });
+
+  final List<PlateRead> plates; // filled as plates are found, so going back keeps them too
+  final PlateLanguage language;
+  final int confirmReads;
+  final double minConfidence;
+  final ResolutionPreset resolution;
+
+  @override
+  State<_ScanAllPage> createState() => _ScanAllPageState();
+}
+
+class _ScanAllPageState extends State<_ScanAllPage> {
+  @override
+  Widget build(BuildContext context) => Scaffold(
+        appBar: AppBar(
+          title: Text('${widget.plates.length} found'),
+          actions: [TextButton(onPressed: () => Navigator.of(context).pop(), child: const Text('Done'))],
+        ),
+        body: Column(children: [
+          Expanded(
+            flex: 3,
+            child: PlateScanner(
+              language: widget.language,
+              confirmReads: widget.confirmReads,
+              minConfidence: widget.minConfidence,
+              resolution: widget.resolution,
+              onlyNew: true,
+              onPlate: (plate) => setState(() => widget.plates.insert(0, plate)),
+            ),
+          ),
+          Expanded(
+            child: ListView.builder(
+              itemCount: widget.plates.length,
+              itemBuilder: (_, i) => ListTile(
+                leading: const Icon(Icons.directions_car_outlined),
+                title: Text(widget.plates[i].text(widget.language)),
+              ),
+            ),
+          ),
+        ]),
+      );
 }
 
 /// The preview filling its space, with the scan area on top. Tap to focus.
