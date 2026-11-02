@@ -74,6 +74,26 @@ void main() {
     expect(() => ai.read(frame), throwsStateError);
   });
 
+  testWidgets('scan returns null when closed', (tester) async {
+    answer((c) => throw PlatformException(code: 'LOAD', message: 'broken'));
+    PlateRead? result = PlateRead('', '', '', 1, const []);
+    await tester.pumpWidget(MaterialApp(
+      home: Builder(
+        builder: (context) => TextButton(
+          onPressed: () async => result = await PlateScanner.scan(context),
+          child: const Text('go'),
+        ),
+      ),
+    ));
+    await tester.tap(find.text('go'));
+    await tester.pump();
+    await tester.pump(const Duration(seconds: 1));
+    await tester.tap(find.byTooltip('Close'));
+    await tester.pump();
+    await tester.pump(const Duration(seconds: 1));
+    expect(result, isNull);
+  });
+
   testWidgets('the scanner offers a retry when it cannot start', (tester) async {
     answer((c) => throw PlatformException(code: 'LOAD', message: 'broken'));
     await tester.pumpWidget(const MaterialApp(home: PlateScanner()));

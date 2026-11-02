@@ -14,7 +14,23 @@ flutter pub add plate_ai
 The models are bundled and add about 11 MB, plus ONNX Runtime's native libraries. Release builds
 need no ProGuard/R8 setup: the package ships its own keep rule.
 
-## Ready-made scanner
+## Scan like a QR code
+
+One call opens a full-screen scanner and returns the plate, ready to use:
+
+```dart
+final plate = await PlateScanner.scan(context);
+
+if (plate != null) {
+  print(plate.en);     // DHAKA METRO GA 11-2345
+  print(plate.bn);     // ঢাকা মেট্রো গ ১১-২৩৪৫
+  print(plate.number); // 11-2345
+}
+```
+
+It returns null if the user closes the scanner. `scan` takes the same options as `PlateScanner`.
+
+## Scanner inside your own screen
 
 `PlateScanner` handles the models, the camera, and pausing with the app:
 
@@ -64,6 +80,7 @@ can be misread, so accept a plate only when two reads have the same `number`.
 
 | | |
 |---|---|
+| `PlateScanner.scan(context)` | Opens a scanner and returns the plate, or null. |
 | `PlateScanner(...)` | The live scanner widget. |
 | `PlateLanguage` | `english` or `bangla`. |
 | `PlateAI.load()` | Loads the models. Call once, before reading. |

@@ -24,6 +24,58 @@ class PlateScanner extends StatefulWidget {
     this.hint = 'Keep the plate inside the box',
   }) : assert(confirmReads >= 1);
 
+  /// Opens a full-screen scanner, like a QR scanner, and returns the first plate it finds.
+  ///
+  /// Returns null if the user goes back without scanning.
+  ///
+  /// ```dart
+  /// final plate = await PlateScanner.scan(context);
+  /// if (plate != null) print(plate.en);
+  /// ```
+  static Future<PlateRead?> scan(
+    BuildContext context, {
+    PlateLanguage language = PlateLanguage.english,
+    int confirmReads = 2,
+    double minConfidence = 0.75,
+    ResolutionPreset resolution = ResolutionPreset.high,
+    String hint = 'Keep the plate inside the box',
+  }) {
+    var done = false; // a second plate can arrive while the page is closing
+    return Navigator.of(context).push<PlateRead>(MaterialPageRoute(
+        fullscreenDialog: true,
+        builder: (page) => Scaffold(
+          backgroundColor: Colors.black,
+          body: Stack(fit: StackFit.expand, children: [
+            PlateScanner(
+              language: language,
+              confirmReads: confirmReads,
+              minConfidence: minConfidence,
+              resolution: resolution,
+              hint: hint,
+              onPlate: (plate) {
+                if (done) return;
+                done = true;
+                Navigator.of(page).pop(plate);
+              },
+            ),
+            SafeArea(
+              child: Align(
+                alignment: Alignment.topLeft,
+                child: Padding(
+                  padding: const EdgeInsets.all(8),
+                  child: IconButton.filledTonal(
+                    tooltip: 'Close',
+                    onPressed: () => Navigator.of(page).pop(),
+                    icon: const Icon(Icons.close),
+                  ),
+                ),
+              ),
+            ),
+          ]),
+        ),
+    ));
+  }
+
   /// The language of the plate shown on screen. Can change while scanning.
   final PlateLanguage language;
 

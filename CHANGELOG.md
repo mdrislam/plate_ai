@@ -1,3 +1,7 @@
+## 0.0.4
+
+* Added `PlateScanner.scan`: opens a scanner and returns the plate, like a QR scanner.
+
 ## 0.0.3
 
 * Fixed the scan area: it now matches what the AI can see.
