@@ -25,9 +25,19 @@ PlateScanner(
 )
 ```
 
-Give it the space you want it to fill. The first run asks for the camera. Set `showResult: false`
-to show the plate your own way. [example/lib/main.dart](example/lib/main.dart) is a full app with a
-language switch.
+Give it the space you want it to fill, and keep this screen in portrait. Tap the preview to focus;
+the flash button is on the preview. If the camera is refused, it shows a message and a retry
+button. [example/lib/main.dart](example/lib/main.dart) is a full app with a language switch.
+
+| Option | Default | |
+|---|---|---|
+| `language` | `english` | Language of the plate on screen. |
+| `onPlate` | | Called once for each new plate. |
+| `showResult` | `true` | Turn off to show the plate your own way. |
+| `confirmReads` | `2` | Reads in a row that must agree. Higher: fewer wrong plates, slower. |
+| `minConfidence` | `0.75` | Reads below this are ignored. |
+| `resolution` | `high` | Lower saves battery, but the plate must be closer. |
+| `hint` | | Text shown until a plate is found. |
 
 ## Reading frames yourself
 
@@ -54,7 +64,7 @@ can be misread, so accept a plate only when two reads have the same `number`.
 
 | | |
 |---|---|
-| `PlateScanner(language, onPlate, showResult)` | The live scanner widget. |
+| `PlateScanner(...)` | The live scanner widget. |
 | `PlateLanguage` | `english` or `bangla`. |
 | `PlateAI.load()` | Loads the models. Call once, before reading. |
 | `PlateAI.read(YFrame)` | The plate in the frame, or null. |
@@ -66,6 +76,6 @@ can be misread, so accept a plate only when two reads have the same `number`.
 
 ## Limits
 
-- Only the centre square of the frame is searched, so keep the plate inside the guide box.
+- Only the centre square of the frame is searched, so keep the plate inside the box.
 - Reads the standard two-line Bangladeshi plate. Other formats return null or a wrong read.
 - It is not perfect: dark, blurred or very angled plates can be missed or misread.

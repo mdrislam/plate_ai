@@ -1,7 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:plate_ai/plate_ai.dart';
 
-void main() => runApp(const MaterialApp(home: ScanPage()));
+void main() {
+  WidgetsFlutterBinding.ensureInitialized();
+  SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
+  runApp(MaterialApp(
+    title: 'Plate AI',
+    theme: ThemeData(colorSchemeSeed: const Color(0xFF0B7A4B), brightness: Brightness.dark),
+    home: const ScanPage(),
+  ));
+}
 
 /// A live scanner with a language switch, and a list of the plates found.
 class ScanPage extends StatefulWidget {
@@ -18,13 +27,17 @@ class _ScanPageState extends State<ScanPage> {
   @override
   Widget build(BuildContext context) => Scaffold(
         appBar: AppBar(title: const Text('Plate AI'), actions: [
-          SegmentedButton<PlateLanguage>(
-            segments: const [
-              ButtonSegment(value: PlateLanguage.english, label: Text('EN')),
-              ButtonSegment(value: PlateLanguage.bangla, label: Text('বাংলা')),
-            ],
-            selected: {_language},
-            onSelectionChanged: (s) => setState(() => _language = s.first),
+          Padding(
+            padding: const EdgeInsets.only(right: 12),
+            child: SegmentedButton<PlateLanguage>(
+              showSelectedIcon: false,
+              segments: const [
+                ButtonSegment(value: PlateLanguage.english, label: Text('EN')),
+                ButtonSegment(value: PlateLanguage.bangla, label: Text('বাংলা')),
+              ],
+              selected: {_language},
+              onSelectionChanged: (s) => setState(() => _language = s.first),
+            ),
           ),
         ]),
         body: Column(children: [
@@ -36,9 +49,15 @@ class _ScanPageState extends State<ScanPage> {
             ),
           ),
           Expanded(
-            child: ListView(children: [
-              for (final plate in _found) ListTile(title: Text(plate.text(_language))),
-            ]),
+            child: _found.isEmpty
+                ? const Center(child: Text('Plates you scan will appear here'))
+                : ListView.builder(
+                    itemCount: _found.length,
+                    itemBuilder: (_, i) => ListTile(
+                      leading: const Icon(Icons.directions_car_outlined),
+                      title: Text(_found[i].text(_language)),
+                    ),
+                  ),
           ),
         ]),
       );

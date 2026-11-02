@@ -3,7 +3,7 @@ import 'dart:math' as math;
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 
-import 'plate_labels.dart';
+import 'src/plate_labels.dart';
 
 export 'plate_scanner.dart';
 
@@ -40,7 +40,7 @@ class YFrame {
 const _bnDigits = '০১২৩৪৫৬৭৮৯';
 const _metroBn = 'মেট্রো';
 const _minDigitConf = 0.6, _minAreaConf = 0.35;
-final _heads = [districtsBn.length, 2, seriesBn.length, 10, 10, 10, 10, 10, 10];
+final _heads = <int>[districtsBn.length, 2, seriesBn.length, 10, 10, 10, 10, 10, 10];
 
 /// Detector + reader on the phone. The models run in native code on a background thread, so the
 /// UI and camera preview stay smooth; no frame ever leaves the device.
