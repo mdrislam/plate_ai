@@ -1,6 +1,6 @@
 name: plate_ai
 description: "On-phone Bangladeshi number plate detector and reader. Android; no server needed."
-version: 0.0.1
+version: 0.0.2
 repository: https://github.com/mdrislam/plate_ai
 
 environment:
@@ -8,6 +8,7 @@ environment:
   flutter: '>=3.3.0'
 
 dependencies:
+  camera: ^0.12.1
   flutter:
     sdk: flutter
   plugin_platform_interface: ^2.0.2

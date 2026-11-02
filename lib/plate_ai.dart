@@ -5,6 +5,11 @@ import 'package:flutter/services.dart';
 
 import 'plate_labels.dart';
 
+export 'plate_scanner.dart';
+
+/// The language a plate is shown in.
+enum PlateLanguage { english, bangla }
+
 /// One plate read on the phone: Bangla as on the plate, and English.
 class PlateRead {
   PlateRead(this.bn, this.en, this.number, this.conf, this.box);
@@ -14,6 +19,9 @@ class PlateRead {
   final String en;
   /// The number alone, `11-2345`. Compare reads on this.
   final String number;
+  /// The plate in [language]: [en] or [bn].
+  String text(PlateLanguage language) => language == PlateLanguage.bangla ? bn : en;
+
   /// The weakest digit's probability, 0..1.
   final double conf;
   /// The plate in the upright frame, 0..1: x0, y0, x1, y1.
